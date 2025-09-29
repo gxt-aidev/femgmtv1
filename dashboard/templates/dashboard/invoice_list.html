@@ -1,0 +1,47 @@
+{% extends '../dashboard/base.html' %}
+{% block title %}Invoices{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Invoices</h3>
+    <a href="{% url 'dashboard:invoice_create' %}" class="btn btn-primary">+ New Invoice</a>
+  </div>
+
+  {% if invoices %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Invoice #</th>
+          <th>Job</th>
+          <th>Client</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for invoice in invoices %}
+        <tr>
+          <td>{{ invoice.invoice_number }}</td>
+          <td>{{ invoice.job.title }}</td>
+          <td>{{ invoice.client.name }}</td>
+          <td>{{ invoice.total_amount }}</td>
+          <td>{{ invoice.get_status_display }}</td>
+          <td>{{ invoice.created_at|date:"Y-m-d H:i" }}</td>
+          <td>
+            <a href="{% url 'dashboard:invoice_detail' invoice.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+            {% if invoice.pdf_file %}
+              <a href="{% url 'dashboard:invoice_download' invoice.pk %}" class="btn btn-sm btn-outline-success">Download</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No invoices found.</p>
+  {% endif %}
+</div>
+{% endblock %}

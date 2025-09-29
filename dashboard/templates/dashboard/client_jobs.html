@@ -1,0 +1,57 @@
+<!-- templates/dashboard/client_jobs.html -->
+{% extends 'dashboard/base.html' %}
+{% block title %}My Jobs - FieldAI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>My Job Requests</h3>
+    <a href="{% url 'dashboard:add_job' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Job
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Job ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Engineer</th>
+                <th>Created On</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr>
+                <td>
+                  <a href="{% url 'dashboard:job_detail' job.job_id %}">{{ job.job_id }}</a>
+                </td>
+                <td>{{ job.title }}</td>
+                <td>
+                    <span class="badge 
+                        {% if job.status == 'completed' %}bg-success
+                        {% elif job.status == 'in_progress' %}bg-warning
+                        {% elif job.status == 'pending' %}bg-secondary
+                        {% else %}bg-info{% endif %}">
+                        {{ job.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    {% if job.assigned_engineer %}
+                        {{ job.assigned_engineer.user.get_full_name|default:job.assigned_engineer.user.username }}
+                    {% else %}
+                        <span class="text-muted">Not Assigned</span>
+                    {% endif %}
+                </td>
+                <td>{{ job.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted">No jobs created yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

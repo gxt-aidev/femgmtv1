@@ -1,0 +1,24 @@
+{% extends '../dashboard/base.html' %}
+
+{% block title %}Add Timesheet Entry - FieldAI{% endblock %}
+
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">Add Timesheet Entry</h3>
+    
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Entry
+            </button>
+            <a href="{% url 'dashboard:view_timesheet' %}" class="btn btn-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

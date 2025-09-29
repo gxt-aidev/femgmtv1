@@ -1,0 +1,35 @@
+/* static/css/responsive.css */
+
+/* Make images fluid */
+img { max-width: 100%; height: auto; }
+
+/* Smaller containers on mobile */
+@media (max-width: 575.98px) {
+  .container, .container-fluid { padding-left: 0.5rem; padding-right: 0.5rem; }
+  .stat-card .number { font-size: 1.6rem; }
+  .stat-card .label { font-size: 0.75rem; }
+
+  /* Touch-friendly buttons: slightly bigger */
+  .btn { padding: 0.6rem 0.9rem; font-size: 0.95rem; }
+
+  /* Hide decorative large modules to save vertical space */
+  .module-placeholder { display: none; }
+}
+
+/* Make tables scrollable horizontally on small screens */
+.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* Increase clickable area for table rows */
+.table td, .table th { padding: 0.75rem; }
+
+/* Responsive chart canvas container */
+.chart-container { position: relative; width: 100%; }
+
+/* Card spacing and fit for mobile */
+.dashboard-card { padding: 1rem; margin-bottom: 1rem; }
+
+/* Small-screen tweaks for offcanvas / sidebar */
+.offcanvas .nav-link { padding: 0.75rem 1rem; font-size: 1rem; }
+
+/* Accessibility: visible focus */
+a:focus, button:focus, .btn:focus { outline: 2px solid rgba(0,123,255,0.25); outline-offset: 2px; }

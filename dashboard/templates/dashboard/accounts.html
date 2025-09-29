@@ -1,0 +1,206 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Accounts Dashboard - FieldAI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Accounts Team Dashboard</h3>
+    <div>
+        <button class="btn btn-primary me-2"><i class="fas fa-file-invoice"></i> Create Invoice</button>
+        <button class="btn btn-outline-primary"><i class="fas fa-filter"></i> Filter</button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="dashboard-card stat-card">
+            <div class="number">${{ outstanding_invoices|floatformat:2 }}</div>
+            <div class="label">Outstanding Invoices</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card stat-card">
+            <div class="number">${{ received_this_month|default:"0.00"|floatformat:2 }}</div>
+            <div class="label">Received This Month</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card stat-card">
+            <div class="number">{{ overdue_invoices }}</div>
+            <div class="label">Overdue Invoices</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card stat-card">
+            <div class="number">{{ invoices_this_month }}</div>
+            <div class="label">Invoices This Month</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="dashboard-card">
+            <h5>Revenue Overview</h5>
+            <div class="module-placeholder">
+                <i class="fas fa-chart-bar"></i>
+                <p>Revenue charts will be displayed here</p>
+            </div>
+            <!-- Trend Chart -->
+            <canvas id="trendChart" style="height: 250px;"></canvas>
+        </div>
+        
+        <div class="dashboard-card">
+            <h5>Recent Invoices</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Client</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in recent_invoices %}
+                        <tr>
+                            <td>{{ invoice.invoice_number }}</td>
+                            <td>{{ invoice.client.name }}</td>
+                            <td>{{ invoice.issue_date|date:"M d, Y" }}</td>
+                            <td>${{ invoice.total_amount|floatformat:2 }}</td>
+                            <td>{{ invoice.due_date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if invoice.status == 'paid' %}
+                                    <span class="badge bg-success">Paid</span>
+                                {% elif invoice.status == 'draft' or invoice.status == 'sent' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif invoice.status == 'overdue' %}
+                                    <span class="badge bg-danger">Overdue</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ invoice.status|capfirst }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1">View</button>
+                                {% if invoice.status == 'paid' %}
+                                    <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                                {% elif invoice.status == 'overdue' %}
+                                    <button class="btn btn-sm btn-outline-warning">Remind</button>
+                                {% else %}
+                                    <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No recent invoices</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="dashboard-card">
+            <h5>Payment Status</h5>
+            <div class="module-placeholder">
+                <i class="fas fa-money-bill-wave"></i>
+                <p>Payment status charts will be displayed here</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-card">
+            <h5>Quick Actions</h5>
+            <div class="quick-actions">
+                <button class="btn btn-outline-primary w-100 text-start mb-2"><i class="fas fa-file-invoice me-2"></i> Create Invoice</button>
+                <button class="btn btn-outline-primary w-100 text-start mb-2"><i class="fas fa-file-export me-2"></i> Export Reports</button>
+                <button class="btn btn-outline-primary w-100 text-start mb-2"><i class="fas fa-envelope me-2"></i> Send Reminders</button>
+                <button class="btn btn-outline-primary w-100 text-start"><i class="fas fa-chart-line me-2"></i> Financial Reports</button>
+            </div>
+        </div>
+        
+        <div class="dashboard-card">
+            <h5>Expense Tracking</h5>
+            <div class="module-placeholder">
+                <i class="fas fa-receipt"></i>
+                <p>Expense tracking will be displayed here</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="dashboard-card">
+            <h5>Top Clients by Revenue</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Revenue</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in top_clients %}
+                        <tr>
+                            <td>{{ client.name }}</td>
+                            <td>${{ client.total_revenue|floatformat:2 }}</td>
+                            <td><span class="badge bg-success">Active</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">No clients found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="dashboard-card">
+            <h5>Payment Methods</h5>
+            <div class="module-placeholder">
+                <i class="fas fa-credit-card"></i>
+                <p>Payment method statistics will be displayed here</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const invoiceData = {{ invoice_trends|safe }};
+const paymentData = {{ payment_trends|safe }};
+
+const labels = invoiceData.map(d => d.month.substring(0, 10));
+const invTotals = invoiceData.map(d => d.total);
+const payTotals = paymentData.map(d => d.total);
+
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: labels,
+    datasets: [
+      { label: 'Invoices', data: invTotals, borderColor: 'blue', fill: false },
+      { label: 'Payments', data: payTotals, borderColor: 'green', fill: false }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      title: { display: true, text: 'Invoice & Payment Trends (Last 6 months)' }
+    }
+  }
+});
+</script>
+{% endblock %}

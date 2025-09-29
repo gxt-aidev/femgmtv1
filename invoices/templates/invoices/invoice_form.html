@@ -1,0 +1,64 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<h2 class="mb-4">{% if invoice %}Edit{% else %}Create{% endif %} Invoice</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Display form errors -->
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    {{ form.as_p }}
+
+    <h4 class="mt-4">Items</h4>
+
+    <!-- Display formset errors -->
+    {% if formset.non_form_errors %}
+        <div class="alert alert-danger">
+            {{ formset.non_form_errors }}
+        </div>
+    {% endif %}
+
+    {{ formset.management_form }}
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for f in formset %}
+            <tr>
+                <td>{{ f.description }}</td>
+                <td>{{ f.quantity }}</td>
+                <td>{{ f.unit_price }}</td>
+                <td class="text-center">{{ f.DELETE }}</td>
+            </tr>
+            {% if f.errors %}
+            <tr>
+                <td colspan="4">
+                    <div class="alert alert-danger">
+                        {{ f.errors }}
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-success">Save</button>
+        <a href="{% url 'invoices:invoice_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

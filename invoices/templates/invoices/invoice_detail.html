@@ -1,0 +1,31 @@
+{% extends "dashboard/base.html" %}
+{% block content %}
+<h2>Invoice {{ invoice.number }}</h2>
+<p><strong>Client:</strong> {{ invoice.client_name }} &lt;{{ invoice.client_email }}&gt;</p>
+<p><strong>Issue:</strong> {{ invoice.issue_date }} | <strong>Due:</strong> {{ invoice.due_date }}</p>
+
+<table class="table">
+  <thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Total</th></tr></thead>
+  <tbody>
+    {% for it in invoice.items.all %}
+      <tr>
+        <td>{{ it.description }}</td>
+        <td>{{ it.quantity }}</td>
+        <td>{{ it.unit_price }}</td>
+        <td>{{ it.line_total }}</td>
+      </tr>
+    {% endfor %}
+    <tr><td colspan="3" class="text-right">Subtotal</td><td>{{ invoice.subtotal }}</td></tr>
+    <tr><td colspan="3" class="text-right">Tax ({{ invoice.tax_percent }}%)</td><td>{{ invoice.tax_amount }}</td></tr>
+    <tr><td colspan="3" class="text-right">Discount</td><td>{{ invoice.discount }}</td></tr>
+    <tr><td colspan="3" class="text-right"><strong>Total</strong></td><td><strong>{{ invoice.total }}</strong></td></tr>
+  </tbody>
+</table>
+
+<a class="btn btn-outline-secondary" href="{% url 'invoices:invoice_pdf' invoice.pk %}">Download PDF</a>
+<form action="{% url 'invoices:invoice_payment' invoice.pk %}" method="post" style="display:inline;">
+  {% csrf_token %}
+  {{ payment_form.amount }}
+  <button class="btn btn-success">Record Payment</button>
+</form>
+{% endblock %}

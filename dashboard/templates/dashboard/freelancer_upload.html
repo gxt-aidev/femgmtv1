@@ -1,0 +1,9 @@
+{% extends "dashboard/base.html" %}
+{% block content %}
+<h1>Upload Freelancers CSV</h1>
+<p>CSV WITHOUT header. Columns (in order): first_name,last_name,email,phone,skills,rate</p>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Upload</button>
+</form>
+{% endblock %}

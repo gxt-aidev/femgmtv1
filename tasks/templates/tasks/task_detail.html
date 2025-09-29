@@ -1,0 +1,42 @@
+{% extends "dashboard/base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>{{ task.title }}</h2>
+
+  <ul class="list-group mb-3">
+    <li class="list-group-item">
+      <strong>Priority:</strong> {{ task.get_priority_display }}
+    </li>
+    <li class="list-group-item">
+      <strong>Status:</strong>
+      {% if task.status == "completed" %}
+        <span class="badge bg-success">Completed</span>
+      {% else %}
+        <span class="badge bg-warning">{{ task.get_status_display }}</span>
+      {% endif %}
+    </li>
+    <li class="list-group-item">
+      <strong>Due Date:</strong> {{ task.due_date|default:"—" }}
+    </li>
+    <li class="list-group-item">
+      <strong>Assigned To:</strong>
+      {% if task.assigned_to %}
+        {{ task.assigned_to.get_full_name|default:task.assigned_to.username }}
+      {% elif task.assigned_role %}
+        {{ task.assigned_role }}
+      {% else %}
+        Not assigned
+      {% endif %}
+    </li>
+    <li class="list-group-item">
+      <strong>Created:</strong> {{ task.created_at|date:"M d, Y H:i" }}
+    </li>
+    <li class="list-group-item">
+      <strong>Updated:</strong> {{ task.updated_at|date:"M d, Y H:i" }}
+    </li>
+  </ul>
+
+  <a href="{% url 'tasks:task_edit' task.pk %}" class="btn btn-primary">Edit</a>
+  <a href="{% url 'tasks:task_list' %}" class="btn btn-secondary">Back</a>
+</div>
+{% endblock %}

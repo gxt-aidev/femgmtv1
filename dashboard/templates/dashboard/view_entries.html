@@ -1,0 +1,59 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}My Timesheet - FieldAI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>My Timesheet</h3>
+        <a href="{% url 'dashboard:add_timesheet_entry' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Entry
+        </a>
+    </div>
+
+    {% if entries %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Date</th>
+                    <th>Coverage Hours (IST)</th>
+                    <th>Ticket/Task #</th>
+                    <th>Client Name</th>
+                    <th>Client ID</th>
+                    <th>Description</th>
+                    <th>Follow Up / New?</th>
+                    <th>Status</th>
+                    <th>Minutes Spent</th>
+                    <th>Comments</th>
+                    {% if request.user.role != "engineer" %}
+                    <th>Engineer</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td>{{ entry.date }}</td>
+                    <td>{{ entry.coverage_hours }}</td>
+                    <td>{{ entry.ticket_number }}</td>
+                    <td>{{ entry.client_name }}</td>
+                    <td>{{ entry.client_id }}</td>
+                    <td>{{ entry.description }}</td>
+                    <td>{{ entry.follow_up_or_new }}</td>
+                    <td>{{ entry.end_of_shift_status }}</td>
+                    <td>{{ entry.minutes_spent }}</td>
+                    <td>{{ entry.comments }}</td>
+                    {% if request.user.role != "engineer" %}
+                    <td>{{ entry.engineer.get_full_name|default:entry.engineer.username }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">No timesheet entries found.</p>
+    {% endif %}
+</div>
+{% endblock %}

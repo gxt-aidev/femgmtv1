@@ -1,0 +1,88 @@
+{% extends '../dashboard/base.html' %}
+{% block title %}Create Invoice{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:900px;">
+  <h3>Create Invoice</h3>
+  {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+  {% endfor %}
+
+  <form method="post" enctype="multipart/form-data" class="card p-3">
+    {% csrf_token %}
+    <div class="row g-3">
+      <div class="col-md-6">
+        {{ form.job.label_tag }}{{ form.job }}
+      </div>
+      <div class="col-md-6">
+        {{ form.client.label_tag }}{{ form.client }}
+      </div>
+
+      <div class="col-md-3">
+        {{ form.issue_date.label_tag }}{{ form.issue_date }}
+      </div>
+      <div class="col-md-3">
+        {{ form.due_date.label_tag }}{{ form.due_date }}
+      </div>
+
+      <div class="col-md-3">
+        {{ form.hours_worked.label_tag }}{{ form.hours_worked }}
+      </div>
+      <div class="col-md-3">
+        {{ form.rate_per_hour.label_tag }}{{ form.rate_per_hour }}
+      </div>
+
+      <div class="col-md-4">
+        {{ form.subtotal.label_tag }}{{ form.subtotal }}
+      </div>
+      <div class="col-md-4">
+        {{ form.tax_amount.label_tag }}{{ form.tax_amount }}
+      </div>
+      <div class="col-md-4">
+        {{ form.total_amount.label_tag }}{{ form.total_amount }}
+      </div>
+
+      <div class="col-12">
+        {{ form.notes.label_tag }}{{ form.notes }}
+      </div>
+
+      <div class="col-md-4">
+        {{ form.pdf_file.label_tag }}{{ form.pdf_file }}
+      </div>
+
+      <div class="col-md-4">
+        {{ form.status.label_tag }}{{ form.status }}
+      </div>
+    </div>
+
+    <div class="mt-3 d-flex gap-2">
+      <button type="submit" class="btn btn-primary">Save Invoice</button>
+      <a href="{% url 'dashboard:invoice_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  // small client-side calc: subtotal = hours * rate ; total = subtotal + tax
+  (function(){
+    const hw = document.getElementById('id_hours_worked');
+    const rate = document.getElementById('id_rate_per_hour');
+    const subtotal = document.getElementById('id_subtotal');
+    const tax = document.getElementById('id_tax_amount');
+    const total = document.getElementById('id_total_amount');
+
+    function calc(){
+      const h = parseFloat(hw && hw.value) || 0;
+      const r = parseFloat(rate && rate.value) || 0;
+      const s = h * r;
+      if(subtotal) subtotal.value = s.toFixed(2);
+      const t = s + (parseFloat(tax && tax.value) || 0);
+      if(total) total.value = t.toFixed(2);
+    }
+
+    [hw, rate, tax].forEach(el => { if(el) el.addEventListener('input', calc); });
+    // initial calc
+    setTimeout(calc, 200);
+  })();
+</script>
+{% endblock %}

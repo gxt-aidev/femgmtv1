@@ -1,0 +1,199 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Manager Dashboard - FieldAI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Project Manager Dashboard</h3>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="dashboard-card stat-card">
+            <div class="number">{{ active_projects }}</div>
+            <div class="label">Active Projects</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card stat-card">
+            <div class="number">{{ overdue_tasks }}</div>
+            <div class="label">Overdue Tasks</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card stat-card">
+            <div class="number">{{ available_engineers }}</div>
+            <div class="label">Available Engineers</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card stat-card">
+            <div class="number">{{ completion_rate }}%</div>
+            <div class="label">Project Completion</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="dashboard-card">
+            <h5>Project Timeline</h5>
+            <div class="module-placeholder">
+                <i class="fas fa-map-marked-alt"></i>
+                <p>Interactive Project Timeline View</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-card">
+            <h5>Engineer Locations</h5>
+            <div class="module-placeholder">
+                <i class="fas fa-map-marker-alt"></i>
+                <p>Live Engineer Tracking Map</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="dashboard-card">
+            <h5>Priority Tasks</h5>
+            <div class="priority-tasks">
+                {% for task in priority_tasks %}
+                <div class="task-item {% if task.priority == 'high' %}high-priority{% elif task.priority == 'urgent' %}urgent-priority{% endif %}">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ task.title }}</strong>
+                        <span class="badge 
+                            {% if task.priority == 'high' %}bg-danger
+                            {% elif task.priority == 'urgent' %}bg-warning
+                            {% else %}bg-info{% endif %}">
+                            {{ task.priority|title }}
+                        </span>
+                    </div>
+                    <p>Client: {{ task.client.name }} • Due: {{ task.scheduled_date|date:"M d, Y" }}</p>
+                    <small>
+                        {% if task.assigned_engineer %}
+                            {{ task.assigned_engineer.user.get_full_name|default:task.assigned_engineer.user.username }}
+                        {% else %}
+                            Unassigned
+                        {% endif %}
+                    </small>
+                </div>
+                {% empty %}
+                <p class="text-muted">No priority tasks</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="dashboard-card">
+            <h5>Team Performance</h5>
+            <div class="module-placeholder">
+                <i class="fas fa-chart-pie"></i>
+                <p>Team performance metrics will be displayed here</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="dashboard-card">
+            <h5>Recent Job Assignments</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Job ID</th>
+                            <th>Client</th>
+                            <th>Engineer</th>
+                            <th>Assigned On</th>
+                            <th>Deadline</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job in recent_assignments %}
+                        <tr>
+                            <td>{{ job.job_id }}</td>
+                            <td>{{ job.client.name }}</td>
+                            <td>
+                                {% if job.assigned_engineer %}
+                                    {{ job.assigned_engineer.user.get_full_name|default:job.assigned_engineer.user.username }}
+                                {% else %}
+                                    Unassigned
+                                {% endif %}
+                            </td>
+                            <td>{{ job.created_at|date:"M d, Y" }}</td>
+                            <td>{{ job.scheduled_date|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if job.status == 'completed' %}bg-success
+                                    {% elif job.status == 'in_progress' %}bg-warning
+                                    {% else %}bg-info{% endif %}">
+                                    {{ job.status|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'dashboard:job_detail' job.job_id %}" class="btn btn-sm btn-outline-primary">View</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center">No recent jobs.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="dashboard-card">
+            <h5>Completion Rate</h5>
+            <canvas id="completionChart"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="dashboard-card">
+            <h5>Jobs Overview</h5>
+            <canvas id="jobsChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Completion donut chart
+    const completionCtx = document.getElementById('completionChart').getContext('2d');
+    new Chart(completionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'Remaining'],
+            datasets: [{
+                data: [{{ completed_jobs }}, {{ total_jobs|default:0 }} - {{ completed_jobs }}],
+                backgroundColor: ['#28a745', '#e0e0e0']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    // Jobs overview bar chart
+    const jobsCtx = document.getElementById('jobsChart').getContext('2d');
+    new Chart(jobsCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Active', 'Overdue'],
+            datasets: [{
+                label: 'Jobs',
+                data: [{{ active_projects }}, {{ overdue_tasks }}],
+                backgroundColor: ['#007bff', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+{% endblock %}

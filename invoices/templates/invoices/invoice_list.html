@@ -1,0 +1,26 @@
+{% extends "dashboard/base.html" %}
+{% block content %}
+<h2>Invoices</h2>
+<a class="btn btn-primary" href="{% url 'invoices:invoice_add' %}">New Invoice</a>
+<table class="table mt-3">
+  <thead><tr><th>Number</th><th>Client</th><th>Issue</th><th>Due</th><th>Total</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    {% for inv in invoices %}
+    <tr>
+      <td><a href="{{ inv.get_absolute_url }}">{{ inv.number }}</a></td>
+      <td>{{ inv.client_name }}</td>
+      <td>{{ inv.issue_date }}</td>
+      <td>{{ inv.due_date }}</td>
+      <td>{{ inv.total }}</td>
+      <td>{{ inv.get_status_display }}</td>
+      <td>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'invoices:invoice_pdf' inv.pk %}">PDF</a>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'invoices:invoice_edit' inv.pk %}">Edit</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">No invoices</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

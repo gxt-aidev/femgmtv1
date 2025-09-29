@@ -1,0 +1,117 @@
+{# dashboard/sidebar_links.html #}
+
+<li class="nav-item">
+    <a class="nav-link active" href="{% url 'tasks:task_list' %}">
+        <i class="fas fa-home"></i> Tasks
+    </a>
+</li>
+
+{% if request.user.role == "engineer" or request.user.role == "manager" %}
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="timesheetMenu" role="button"
+       data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-clock"></i> Timesheet
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="timesheetMenu">
+        {% if request.user.role == "engineer" %}
+        <li><a class="dropdown-item" href="{% url 'dashboard:add_timesheet_entry' %}">
+            <i class="fas fa-plus"></i> Add Entry</a></li>
+        {% endif %}
+        <li><a class="dropdown-item" href="{% url 'dashboard:view_timesheet' %}">
+            <i class="fas fa-list"></i> View Entries</a></li>
+    </ul>
+</li>
+{% endif %}
+
+<li class="nav-item">
+    <a class="nav-link active" href="{% if user.role == 'admin' %}{% url 'dashboard:admin_dashboard' %}
+                                     {% elif user.role == 'manager' %}{% url 'dashboard:manager_dashboard' %}
+                                     {% elif user.role == 'engineer' %}{% url 'dashboard:engineer_dashboard' %}
+                                     {% elif user.role == 'client' %}{% url 'dashboard:client_dashboard' %}
+                                     {% elif user.role == 'accounts' %}{% url 'dashboard:accounts_dashboard' %}
+                                     {% endif %}">
+        <i class="fas fa-home"></i> Dashboard
+    </a>
+</li>
+
+{% if user.role == "client" %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'dashboard:client_jobs' %}">
+        <i class="fas fa-briefcase"></i> My Jobs
+    </a>
+</li>
+{% endif %}
+
+<li class="nav-item">
+    <a class="nav-link" href="{% if user.role == 'manager' %}{% url 'dashboard:manager_jobs' %}
+                               {% elif user.role == 'engineer' %}{% url 'dashboard:engineer_jobs' %}
+                               {% elif user.role == 'client' %}{% url 'dashboard:client_jobs' %}
+                               {% else %}#{% endif %}">
+        <i class="fas fa-tasks"></i> Jobs
+    </a>
+</li>
+
+{% if user.role == 'admin' or user.role == 'manager' %}
+<li class="nav-item"><a class="nav-link" href="{% url 'dashboard:manager_engineers' %}"><i class="fas fa-users"></i> Engineers</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'dashboard:client_list' %}"><i class="fas fa-users"></i> Clients</a></li>
+
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'dashboard:skill_list' %}">
+        <i class="fas fa-lightbulb"></i> Skills
+    </a>
+</li>
+
+<li class="nav-item"><a class="nav-link" href="{% url 'dashboard:freelancer_list' %}"><i class="fas fa-users"></i> Freelancers</a></li>
+{% endif %}
+
+{% if user.role == 'manager' %}
+<li class="nav-item"><a class="nav-link" href="{% url 'dashboard:manager_report' %}"><i class="fas fa-chart-line"></i> Reports Manager</a></li>
+{% endif %}
+
+{% if user.role == 'manager' or user.role == 'accounts' %}
+<li class="nav-item">
+    <a class="nav-link position-relative" href="{% if user.role == 'manager' %}{% url 'dashboard:manager_notifications' %}
+                                                {% elif user.role == 'accounts' %}{% url 'dashboard:accounts_notifications' %}
+                                                {% else %}#{% endif %}">
+        <i class="fas fa-bell"></i> Notifications
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
+              id="notificationBadge">
+            0
+        </span>
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'dashboard:manager_real_time_updates_page' %}">
+        <i class="fas fa-bolt"></i> Real-Time Updates
+    </a>
+</li>
+{% endif %}
+
+<li class="nav-item">
+    <a class="nav-link" href="#">
+        <i class="fas fa-calendar"></i> Schedule
+    </a>
+</li>
+
+{% if user.role == 'admin' or user.role == 'client' %}
+<li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-file-invoice"></i> Invoices</a></li>
+{% endif %}
+
+{% if user.role == 'accounts' %}
+<li class="nav-item"><a class="nav-link" href="{% url 'invoices:invoice_list' %}"><i class="fas fa-file-invoice"></i> Manage Invoices</a></li>
+{% endif %}
+
+{% if request.user.is_authenticated and request.user.role == 'engineer' %}
+<li class="nav-item"><a class="nav-link" href="{% url 'dashboard:engineer_report' %}"><i class="fas fa-users"></i> My Reports</a></li>
+{% endif %}
+
+{% if user.role == 'admin' %}
+<li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-cog"></i> Settings</a></li>
+<li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-user-plus"></i> User Management</a></li>
+{% endif %}
+
+<li class="nav-item mt-4">
+    <a class="nav-link text-warning" href="{% url 'accounts:logout' %}">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+</li>
